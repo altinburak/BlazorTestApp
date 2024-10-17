@@ -1,0 +1,37 @@
+﻿@using BlazorTestApp.Services
+@inject IFieldService FieldService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="_field.FieldName" Label="Field Name" Required="true" />
+        <MudNumericField @bind-Value="_field.FieldArea" Label="Field Area" Required="true" Min="0" />
+        <MudTextField @bind-Value="_field.CropName" Label="Crop Name" Required="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Add Field</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private Field _field = new Field();
+
+    private async Task Submit()
+    {
+        try
+        {
+            await FieldService.AddFieldAsync(_field);
+            Snackbar.Add("Field added successfully", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error adding field: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

@@ -1,0 +1,62 @@
+﻿@page "/"
+@using BlazorTestApp.Services
+@inject IFieldService FieldService
+@inject IDialogService DialogService
+
+<MudText Typo="Typo.h3" GutterBottom="true">Field List</MudText>
+
+<MudTextField @bind-Value="_searchString" Placeholder="Search fields" Adornment="Adornment.Start" Class="mt-0"></MudTextField>
+
+<MudTable Items="@_fields" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<Field,bool>(FilterFunc)">
+    <ToolBarContent>
+        <MudButton Color="Color.Primary" OnClick="OpenAddFieldDialog">Add Field</MudButton>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Field Name</MudTh>
+        <MudTh>Field Area</MudTh>
+        <MudTh>Crop Name</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Field Name">@context.FieldName</MudTd>
+        <MudTd DataLabel="Field Area">@context.FieldArea</MudTd>
+        <MudTd DataLabel="Crop Name">@context.CropName</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<Field> _fields = new List<Field>();
+    private string _searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFields();
+    }
+
+    private async Task LoadFields()
+    {
+        _fields = await FieldService.GetFieldsAsync(_searchString);
+    }
+
+    private bool FilterFunc(Field field)
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        return field.FieldName.Contains(_searchString, StringComparison.OrdinalIgnoreCase)
+            || field.CropName.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task OpenAddFieldDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = await DialogService.ShowAsync<AddFieldDialog>("Add Field", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadFields();
+            StateHasChanged();
+        }
+    }
+}

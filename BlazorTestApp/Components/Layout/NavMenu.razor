@@ -1,0 +1,23 @@
+﻿@using MudBlazor
+
+<MudNavMenu Open="true" Dense="true">
+    <MudDrawer Clipped="true" Open="true" Elevation="0" Variant="DrawerVariant.Responsive">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h4" Align="Align.Center" Class="py-4">BlazorTestApp</MudText>
+        </MudDrawerHeader>
+
+        <MudNavMenu>
+            <MudNavLink Href="/" Class="my-2">Home</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+</MudNavMenu>
+
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}
